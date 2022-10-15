@@ -27,7 +27,13 @@ img {
   height: 100%;
   object-fit: cover;
 }
-hr {
+hr,
+.basket-menu.empty .product,
+.basket-menu.empty .checkout,
+.is-empty,
+.thumbnails,
+.gallery-close,
+h1 {
   display: none;
 }
 body {
@@ -75,6 +81,9 @@ main {
 [data-font-2x] {
   font-size: 2rem;
 }
+[data-font-weight-400] {
+  font-weight: 400;
+}
 [data-font-weight-700] {
   font-weight: 700;
 }
@@ -91,11 +100,65 @@ main {
 [data-background-orange] {
   background-color: var(--main-orange);
 }
+.inivisible {
+  opacity: 0;
+}
+.presentation {
+  grid-template-rows: max-content;
+}
 
+/* content inside basket */
+.basket-menu {
+  position: fixed;
+  left: 0;
+  top: 80px;
+  translate: 0% 100%;
+  z-index: 10;
+  background-color: white;
+  width: calc(100% - 1rem);
+  translate: 0.5rem;
+  border-radius: 0.5rem;
+  grid-auto-rows: max-content;
+  align-items: center;
+  gap: 2rem;
+  transition: opacity 0.2s ease;
+  opacity: 0;
+  padding: 1rem 0.5rem;
+  pointer-events: none;
+}
+.basket-menu.active {
+  opacity: 1;
+  z-index: 10;
+  pointer-events: initial;
+}
+
+.product {
+  gap: 1rem;
+  align-items: center;
+  margin-block-start: 1rem;
+}
+.product img {
+  width: 50px;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+}
+.product-prices [data-flex] {
+  gap: 0.2rem;
+}
+.is-empty {
+  margin-block: 2rem;
+  text-align: center;
+}
+.basket-menu.empty .is-empty {
+  display: initial;
+}
+.backet {
+  margin-inline-start: auto;
+}
 /* container */
 .container,
 .container * {
-  max-width: 2000px;
+  max-width: 1200px;
 }
 /* header */
 .top-navigation {
@@ -105,6 +168,40 @@ main {
 .cart {
   gap: 2rem;
 }
+.header-menu li {
+  position: relative;
+}
+.header-menu li::before,
+.basket[data-in-basket]::before {
+  background-color: var(--main-orange);
+}
+
+.header-menu li::before {
+  content: "";
+  position: absolute;
+  top: 200%;
+  width: 100%;
+  height: 4px;
+
+  transition: scale 0.4s ease;
+  transform-origin: left;
+  scale: 0 1;
+}
+.header-menu li:hover::before {
+  scale: 1;
+}
+.basket svg {
+  fill: #69707d;
+  transition: fill 0.2s ease;
+}
+.basket.active svg {
+  fill: #111;
+}
+.basket[data-in-basket]::before,
+.gallery-button::before {
+  border-radius: 50%;
+}
+
 .basket[data-in-basket]::before {
   content: attr(data-in-basket);
   font-size: 0.7rem;
@@ -116,8 +213,6 @@ main {
   aspect-ratio: 2 / 1.2;
   top: -4px;
   right: -5px;
-  border-radius: 50%;
-  background-color: red;
 }
 /* presentation section */
 .company-heading {
@@ -130,8 +225,33 @@ main {
   font-size: 1.7rem;
 }
 /* gallery-section */
+.lightbox {
+  position: fixed;
+  scale: 0.8;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  gap: 2rem;
+  display: grid;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.7);
+
+  transition: 0.3s ease;
+}
+.lightbox:not(.active) {
+  pointer-events: none;
+  opacity: 0;
+}
+.lightbox:where(.thumbnails) {
+  scale: 0.8;
+  gap: 3rem;
+}
+.gallery img,
+.lightbox .big-img::before,
+.small-img.style {
+  border-radius: 1rem;
+}
 .gallery img {
-  border-radius: 0.5rem;
   overflow: hidden;
   cursor: pointer;
 }
@@ -140,15 +260,24 @@ main {
   grid-auto-columns: 100%;
   overflow: hidden;
 }
+.lightbox .big-img::before {
+  content: "";
+  position: absolute;
+  background-color: black;
+  inset: 0;
+  z-index: -1;
+}
+
 .big-img img {
-  transition: translate 0.4s ease;
+  transition: 0.4s ease;
 }
 .small-img.style img {
   opacity: 0.4;
 }
 .small-img.style {
-  border: 2px solid var(--main-orange);
-  border-radius: 0.6rem;
+  outline: 2px solid var(--main-orange);
+  outline-offset: -2px;
+  background-color: white;
 }
 .gallery-button {
   top: 50%;
@@ -175,7 +304,6 @@ main {
   background-color: white;
   scale: 3.2;
   z-index: -1;
-  border-radius: 50%;
 }
 .gallery .previous {
   left: var(--shift-position);
@@ -201,7 +329,8 @@ main {
 .plus {
   order: 1;
 }
-.cart {
+.cart,
+.checkout {
   padding: 1em 2em;
   border-radius: 1vmax;
   color: white;
@@ -216,10 +345,19 @@ main {
 img[data-current] {
   transition-delay: 0;
 }
+/* lightbox gallery */
+.lightbox .big-img {
+  overflow: visible;
+}
+.lightbox [data-right]:not([data-current]) {
+  opacity: 0;
+  translate: 0;
+}
 @media (max-width: 1000px) {
   header,
   .product-info {
     padding-inline: 1.2rem;
+    grid-auto-rows: max-content;
   }
   .top-navigation {
     gap: 0.75rem;
@@ -249,6 +387,7 @@ img[data-current] {
     box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.7);
     scale: 0 1;
   }
+
   .header-menu.show {
     scale: 1;
     z-index: 2;
@@ -262,8 +401,7 @@ img[data-current] {
   .product-pushare {
     gap: 1rem;
   }
-  .thumbnails,
-  .gallery-close {
+  .thumbnails {
     display: none;
   }
   .product-price {
@@ -283,8 +421,57 @@ img[data-current] {
   }
 }
 @media (min-width: 1000px) {
-  .hamburger {
+  .container {
+    padding: 1rem;
+  }
+  .header-menu {
+    margin-inline-start: 2rem;
+    color: var(--secondary-gray);
+  }
+  .top-navigation,
+  hr {
+    width: 90%;
+    margin-inline: auto;
+  }
+  hr {
+    display: block;
+    background-color: var(--secondary-lightgray);
+    opacity: 0;
+    translate: 0 2vh;
+    transition: opacity 0.6s ease;
+  }
+  hr.active {
+    opacity: 0.6;
+  }
+
+  .hamburger,
+  .gallery-button:not([data-lightbox]),
+  .gallery-close:not([data-lightbox]) {
     display: none;
+  }
+  .basket {
+    position: relative;
+  }
+  .basket-menu {
+    position: absolute;
+    width: 350px;
+    top: 3rem;
+    left: -450px;
+    translate: 65%;
+  }
+  .backet {
+    scale: 1.2;
+  }
+  .avatar {
+    scale: 0.8;
+    outline: 1px solid rgba(0, 0, 0, 0);
+    outline-offset: -2px;
+    transition: outline, outline-offset 0.1s ease;
+  }
+  .avatar:hover {
+    border-radius: 50%;
+    outline: 3px solid var(--main-orange);
+    outline-offset: 0.2px;
   }
   .presentation {
     width: 85%;
@@ -294,25 +481,36 @@ img[data-current] {
   }
   .gallery {
     gap: 2rem;
+    z-index: 1;
   }
   .gallery-button {
     --shift-position: -0.5vw;
   }
-  .gallery-close {
+  .lightbox [class*="o"] {
+    display: grid;
+    scale: 1.4;
+    cursor: pointer;
+  }
+  .gallery-close.gallery-close {
     width: max-content;
     height: max-content;
     top: 0.2rem;
     right: 0.2rem;
+    fill: #69707d;
+    transition: 0.2s ease;
+    translate: 0 -300%;
+    scale: 2;
   }
-  .gallery-button:not([data-lightbox]),
-  .gallery-close:not([data-lightbox]) {
-    display: none;
-  }
-  .big-img {
-    aspect-ratio: 1;
+  .gallery-close:hover {
+    fill: var(--main-orange);
   }
   .thumbnails {
     gap: 1.5rem;
+    place-self: center;
+  }
+  .lightbox .thumbnails {
+    gap: 3rem;
+    scale: 0.8;
   }
 
   .product-info {
